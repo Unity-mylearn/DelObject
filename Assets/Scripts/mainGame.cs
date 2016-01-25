@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class mainGame : MonoBehaviour {
+public class mainGame : MonoBehaviour
+{
 
 
-	public bool _canTransitDiagonally = false;//Indicate if we can switch diagonally
+	public bool _canTransitDiagonally = false;
+//Indicate if we can switch diagonally
 
 	public int _gridWidth;
 	public int _gridHeight;
@@ -12,7 +14,7 @@ public class mainGame : MonoBehaviour {
 	private GameObject _firstObject;
 	private GameObject _secondObject;
 	public GameObject _indicator;
-//	private GameObject _currentIndicator;
+	//	private GameObject _currentIndicator;
 	// default shape,to initialization
 	public GameObject emptyObject;
 	public GameObject[] _listOfShapes;
@@ -20,11 +22,12 @@ public class mainGame : MonoBehaviour {
 
 
 	// Use this for initialization
-	void Start () {
+	void Start ()
+	{
 		// use empty shape intialization grid
-		_arrayOfShapes = new GameObject[_gridWidth,_gridHeight];
-		for (int i = 0; i <= _gridWidth-1; i++) {
-			for (int j = 0; j <= _gridHeight-1; j++) {
+		_arrayOfShapes = new GameObject[_gridWidth, _gridHeight];
+		for (int i = 0; i <= _gridWidth - 1; i++) {
+			for (int j = 0; j <= _gridHeight - 1; j++) {
 				GameObject emptyObj = GameObject.Instantiate (emptyObject, new Vector3 (i, j, 0), transform.rotation) as GameObject;
 				_arrayOfShapes [i, j] = emptyObj;
 			}
@@ -34,6 +37,12 @@ public class mainGame : MonoBehaviour {
 	}
 
 
+	void DoSwapMotion (Transform a, Transform b)
+	{
+		Vector3 temp = a.localPosition;
+		a.localPosition = b.localPosition;
+		b.localPosition = temp;
+	}
 	// Swap Two Tile, it swaps the position of two objects in the grid array
 	void DoSwapTile (GameObject a, GameObject b, ref GameObject[,] cells)
 	{
@@ -44,9 +53,11 @@ public class mainGame : MonoBehaviour {
 
 		cells [(int)b.transform.position.x, (int)b.transform.position.y] = cell;
 
+		canMatch = true;
 	}
 
-	private ArrayList FindMatch(GameObject[,] cells){
+	private ArrayList FindMatch (GameObject[,] cells)
+	{
 		ArrayList stack = new ArrayList ();
 		for (var x = 0; x <= cells.GetUpperBound (0); x++) {
 			for (var y = 0; y <= cells.GetUpperBound (1); y++) {
@@ -58,7 +69,7 @@ public class mainGame : MonoBehaviour {
 				int y1;
 				for (y1 = y + 1; y1 <= y2; y1++) {
 					if (cells [x, y1].name == "empty(Clone)" ||
-						(thiscell.name != cells [x, y1].name))
+					    (thiscell.name != cells [x, y1].name))
 						break;
 					matchCount++;
 				}
@@ -73,8 +84,8 @@ public class mainGame : MonoBehaviour {
 			}
 		}
 
-		for (var y = 0; y <= cells.GetUpperBound(1); y++) {
-			for (var x = 0; x <= cells.GetUpperBound(0); x++) {
+		for (var y = 0; y <= cells.GetUpperBound (1); y++) {
+			for (var x = 0; x <= cells.GetUpperBound (0); x++) {
 				var thiscell = cells [x, y];
 				if (thiscell.name == "empty(Clone)")
 					continue;
@@ -84,8 +95,8 @@ public class mainGame : MonoBehaviour {
 				int x2 = cells.GetUpperBound (0);
 				int x1;
 				for (x1 = x + 1; x1 <= x2; x1++) {
-					if (cells [x1, y].name == "empty(Clone)" || 
-						(thiscell.name != cells [x1, y].name))
+					if (cells [x1, y].name == "empty(Clone)" ||
+					    (thiscell.name != cells [x1, y].name))
 						break;
 					matchCount++;
 				}
@@ -105,7 +116,8 @@ public class mainGame : MonoBehaviour {
 	bool shouldTransit = false;
 	bool canMatch = false;
 	// Update is called once per frame
-	void Update () {
+	void Update ()
+	{
 		if (Input.GetKeyDown (KeyCode.Escape))
 			Application.Quit ();
 		shouldTransit = false;
@@ -113,7 +125,7 @@ public class mainGame : MonoBehaviour {
 
 		if (Input.GetButtonDown ("Fire1")) {
 //			Destroy (_currentIndicator);
-			Ray ray   = Camera.main.ScreenPointToRay (Input.mousePosition);
+			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
 			//RaycastHit2D hit = Physics2D.Raycast (Camera.main.ScreenToWorldPoint (Input.mousePosition), Vector2.zero);
 			RaycastHit hit;
 //			if(Physics.Raycast(ray,out hit,100)){
@@ -121,8 +133,8 @@ public class mainGame : MonoBehaviour {
 //			}
 //			if (hit.transform != null) {
 //				if (hit.transform.gameObject.name == "empty(Clone)") {
-			if(Physics.Raycast(ray,out hit,100)){
-				if(hit.collider.gameObject.name == "empty(Clone)"){
+			if (Physics.Raycast (ray, out hit, 100)) {
+				if (hit.collider.gameObject.name == "empty(Clone)") {
 					DoEmptyDown (ref _arrayOfShapes);
 					return;
 				}
@@ -132,7 +144,7 @@ public class mainGame : MonoBehaviour {
 				Vector2 gemPosition = new Vector2 (-1, -1);
 				for (int x = 0; x <= _arrayOfShapes.GetUpperBound (0); x++) {
 					for (int y = 0; y <= _arrayOfShapes.GetUpperBound (1); y++) {
-						if (_arrayOfShapes [x, y].GetInstanceID() == hit.transform.gameObject.GetInstanceID ()) {
+						if (_arrayOfShapes [x, y].GetInstanceID () == hit.transform.gameObject.GetInstanceID ()) {
 							foundGem = true;
 							gemPosition = new Vector2 (x, y);
 						}
@@ -142,7 +154,7 @@ public class mainGame : MonoBehaviour {
 					return;
 				if (_firstObject == null) {
 					_firstObject = hit.transform.gameObject;
-				}else{
+				} else {
 					_secondObject = hit.transform.gameObject;
 					shouldTransit = true;
 				}
@@ -163,14 +175,14 @@ public class mainGame : MonoBehaviour {
 								return;
 							}
 						}
+						DoSwapMotion(_firstObject.transform, _secondObject.transform);
 						//
-						DoSwapTile(_firstObject, _secondObject, ref _arrayOfShapes);
+						DoSwapTile (_firstObject, _secondObject, ref _arrayOfShapes);
 					} else {
 						_firstObject = null;
 						_secondObject = null;
 					}
 //					Destroy (_currentIndicator);
-					canMatch = true;
 				}
 			}
 		}
@@ -187,8 +199,7 @@ public class mainGame : MonoBehaviour {
 			_secondObject = null;
 			canMatch = false;
 			DoEmptyDown (ref _arrayOfShapes);
-		}
-		else if (_firstObject != null && _secondObject != null) {
+		} else if (_firstObject != null && _secondObject != null) {
 //			DoSwapTile (_firstObject, _secondObject, ref _arrayOfShapes);
 //			_firstObject = null;
 //			_secondObject = null;
@@ -196,7 +207,8 @@ public class mainGame : MonoBehaviour {
 		}
 	}
 
-	private void DoEmptyDown(ref GameObject[,] cells){
+	private void DoEmptyDown (ref GameObject[,] cells)
+	{
 		for (int x = 0; x <= cells.GetUpperBound (0); x++) {
 			for (int y = 0; y <= cells.GetUpperBound (1); y++) {
 			
