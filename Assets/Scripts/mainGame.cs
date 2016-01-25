@@ -234,6 +234,12 @@ public class mainGame : MonoBehaviour
 				}
 			}
 		}
+
+		for (int x = 0; x <= cells.GetUpperBound (0); x++) {
+			for (int y = 0; y <= cells.GetUpperBound (1); y++) {
+				cells [x, y].transform.position = new Vector3 (x, y, 0);
+			}
+		}
 	}
 
 }
